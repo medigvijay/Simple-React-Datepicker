@@ -47,7 +47,9 @@ class Picker extends React.Component {
   render() {
     return (
       <div className="picker">
-        <input type="text" value={this.state.currentValue} onFocus={this.toggleCalander.bind(this)} onBlur={this.toggleCalander.bind(this)}/>
+        <div className="input-group">
+            <input type="text" value={this.state.currentValue} onFocus={this.toggleCalander.bind(this)} onBlur={this.toggleCalander.bind(this)}/>
+        </div>
         <CalanderMonth calanderVisible={this.state.showCalander} handleUpdate={this.updateDate.bind(this)}/>
       </div>
     );

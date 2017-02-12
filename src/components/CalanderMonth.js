@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import DateBox from "./DateBox.js";
+import DayName from "./DayName.js";
 
 class CalanderMonth extends React.Component {
   constructor() {
@@ -24,7 +25,6 @@ class CalanderMonth extends React.Component {
     var daysList = [];
     for(var i = 0; i < this.numDays; i++) {
       var tmp = new Date(this.fullYear, this.month, i+1);
-    console.log(tmp);
       var obj  = {date: tmp.getDate(), month: tmp.getMonth(), year: tmp.getFullYear(), currentMonth: true};
       daysList[i] = obj;
     }
@@ -36,12 +36,10 @@ class CalanderMonth extends React.Component {
       daysList.unshift(obj);
     }
     for(var i = 1; ((daysList.length <= 42)); i++) {
-        console.log(i);
       var tmp = new Date(this.fullYear, this.month + 1, 0);
       tmp.setDate(ld.getDate() + i);
 
       var obj  = {date: tmp.getDate(), month: tmp.getMonth(), year: tmp.getFullYear()};
-      console.log(obj)
       daysList.push(obj);
     }
     this.state = {
@@ -49,17 +47,28 @@ class CalanderMonth extends React.Component {
     }
   }
   handleClick(fullDate) {
-    //console.log(fullDate);
     var newDate = new Date(fullDate.year, fullDate.month, fullDate.date);
-    //this.date = newDate;
-
+    if(fullDate.month > this.month) {
+        if(fullDate.year === this.fullYear) {
+            this.changeMonth(1);
+        } else {
+            this.changeMonth(-1);
+        }
+    } else if(fullDate.month < this.month) {
+        if((fullDate.year === this.fullYear)) {
+            this.changeMonth(-1);
+        } else {
+            this.changeMonth(1);
+        }
+        
+    }
     this.props.handleUpdate(newDate);
   }
   renderDateBox(item, i) {
     return (<DateBox label={item.date} key={i}  fullDate={item} date={item.date} year={item.year} month={item.month} handleClick={this.handleClick.bind(this)}/>);
   }
   renderWeekDays(item, i) {
-    return (<DateBox label={item} key={i} date= {i+1} month={item.month} year={this.year}/>);
+    return (<DayName label={item} key={i}/>);
   }
   
   getRows() {
@@ -79,13 +88,18 @@ class CalanderMonth extends React.Component {
   }
   changeMonth(change) {
     var next = change;
-    if((this.month + next) < 0 || (this.month + next) > 11) {
-        this.fulllYear += (1 * change);
+    this.month += next;
+    if((this.month) < 0) {
+        this.month = 11;
+        this.fullYear -= 1;
+    } else if((this.month) > 11) {
+        this.month = 0;
+        this.fullYear += 1;
     }
-    var date = new Date(this.fullYear, this.month + next, next);
+    var date = new Date(this.fullYear, this.month, next);
     this.days = [];
-    this.month = date.getMonth();
-    this.fullYear = date.getFullYear();
+    //this.month = date.getMonth();
+    //this.fullYear = date.getFullYear();
 
     var ld = new Date(this.fullYear, this.month + 1, 0);
     var fd = new Date(this.fullYear, this.month, 1);
@@ -101,7 +115,6 @@ class CalanderMonth extends React.Component {
       var obj  = {date: tmp.getDate(), month: tmp.getMonth(), year: tmp.getFullYear(), currentMonth: true};
       daysList[i] = obj;
     }
-    console.log(daysList.length+"change", fd, ld, this.numDays);
     for(var i = 0; i < fd.getDay(); i++) {
       var tmp = new Date(this.fullYear, this.month, fd.getDate() - i - 1);
       daysList.unshift({date: tmp.getDate(), month: tmp.getMonth(), year: tmp.getFullYear()});
@@ -129,12 +142,14 @@ class CalanderMonth extends React.Component {
     });
 
     var currentMonth = this.months[this.month];
+    var monthYear = currentMonth + " " + this.fullYear;
     return (
       <div className= {visibilityClass}>
-        <div className="navbar"><button className="btn btn-primary navbar-left btn-sm" onClick={this.changeMonth.bind(this, 0)}>Prev</button>
-          <span>{currentMonth}</span>
+        <div className="navbar">
+          <button className="btn btn-primary navbar-left btn-sm" onClick={this.changeMonth.bind(this, -1)}>Prev</button>
+          <button className="btn btn-default btn-sm">{monthYear}</button>
           <button className="btn btn-primary navbar-right btn-sm" onClick={this.changeMonth.bind(this, 1)}>Next</button></div>
-        <div className="board-row">
+        <div className="day-name-row">
           {weekDays}
         </div>
         <div className="board-row">
